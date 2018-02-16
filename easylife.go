@@ -9,10 +9,7 @@ import (
 func OnStart(funcs ...interface{}) Option {
 	invokeType := createInvokeType(funcs...)
 	invoke := reflect.MakeFunc(invokeType, func(args []reflect.Value) []reflect.Value {
-		// extract lifecycle from arg 0
 		lifecycle := args[0].Interface().(Lifecycle)
-
-		// then call each invoke func
 		lifecycle.Append(Hook{
 			OnStart: func(ctx context.Context) error {
 				callInvokeFuncs(args, funcs...)
@@ -23,7 +20,27 @@ func OnStart(funcs ...interface{}) Option {
 		return []reflect.Value{}
 	})
 
-	// pass our 1 onstart invoke to invokeOption
+	var invokes []interface{}
+	invokes = append(invokes, invoke.Interface())
+
+	return invokeOption(invokes)
+}
+
+// OnStop makes it easy to hook into process shutdown
+func OnStop(funcs ...interface{}) Option {
+	invokeType := createInvokeType(funcs...)
+	invoke := reflect.MakeFunc(invokeType, func(args []reflect.Value) []reflect.Value {
+		lifecycle := args[0].Interface().(Lifecycle)
+		lifecycle.Append(Hook{
+			OnStop: func(ctx context.Context) error {
+				callInvokeFuncs(args, funcs...)
+				return nil
+			},
+		})
+
+		return []reflect.Value{}
+	})
+
 	var invokes []interface{}
 	invokes = append(invokes, invoke.Interface())
 
