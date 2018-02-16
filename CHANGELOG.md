@@ -7,14 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.5.0]
 
 ### Added
-- Add `fx.OnStart` which invokes functions when application
-  lifecycle is starting. This is a convenience option which is
-  equivalent to using `fx.Invoke` with `fx.Lifecycle` as an argument,
-  then appending an `fx.Hook` with the `OnStart` callback provided.
-- Add `fx.OnStop` which invokes functions when application
-  lifecycle is stopping. This is a convenience option which is
-  equivalent to using `fx.Invoke` with `fx.Lifecycle` as an argument,
-  then appending an `fx.Hook` with the `OnStop` callback provided.
+- Add `fx.OnStart` and `fx.OnStop`, which invokes functions when application
+  lifecycle is starting and stopping, respectively. These convenience options
+  are equivalent to supplying an `fx.Invoke` with `fx.Lifecycle` as an
+  argument, then appending an `fx.Hook` with the `OnStart` or `OnStop`
+  callback provided.
 
 ## [1.4.0] - 2017-12-07
 ### Added
