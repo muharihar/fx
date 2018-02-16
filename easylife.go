@@ -46,8 +46,8 @@ func OnStart(funcs ...interface{}) Option {
 }
 
 func createInvokeType(funcs ...interface{}) reflect.Type {
-	// build args to pass to invoke func
 	var in []reflect.Type
+	var out []reflect.Type
 
 	// append lifecycle as the first args to the invoke func
 	lifecycle := reflect.TypeOf(func(lifecycle Lifecycle) {}).In(0)
@@ -61,9 +61,5 @@ func createInvokeType(funcs ...interface{}) reflect.Type {
 		}
 	}
 
-	// create a func type using all "in" args
-	var out []reflect.Type
-	invokeType := reflect.FuncOf(in, out, false)
-
-	return invokeType
+	return reflect.FuncOf(in, out, false)
 }
