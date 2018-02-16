@@ -40,7 +40,12 @@ func OnStart(funcs ...interface{}) Option {
 				// call all funcs with their args
 				fmt.Println("CALLING FUNCS AT START")
 				for _, fn := range funcs {
-					fmt.Println("func:", fn)
+					f := reflect.ValueOf(fn)
+
+					// TODO use the right range given the func
+					in := args[1:2]
+
+					f.Call(in)
 				}
 				return nil
 			},

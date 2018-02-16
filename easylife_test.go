@@ -9,10 +9,12 @@ import (
 )
 
 func TestOnStart(t *testing.T) {
-	type A struct{}
+	type A struct {
+		Name string
+	}
 
 	app := New(
-		Provide(func() A { return A{} }),
+		Provide(func() A { return A{Name: "Grayson"} }),
 		OnStart(func(a A) {
 			fmt.Println("I got an", a)
 		}),
