@@ -24,9 +24,9 @@ func TestOnStart(t *testing.T) {
 			func(a A, b B) {
 				fmt.Println("I got an", a, b)
 			},
-			//func(b B, a A) {
-			//fmt.Println("I got a", b, a)
-			//},
+			func(b B, a A) {
+				fmt.Println("I got a", b, a)
+			},
 		),
 	)
 

@@ -37,13 +37,15 @@ func OnStart(funcs ...interface{}) Option {
 			OnStart: func(ctx context.Context) error {
 
 				// call all funcs with their args
-				argPos := 1
+				argBeg := 1
+				argEnd := 0
 				for _, fn := range funcs {
 					f := reflect.ValueOf(fn)
 
-					numIn := f.Type().NumIn()
-					in := args[argPos : numIn+1]
-					argPos += numIn
+					// gather args and shift argBeg and argEnd
+					argEnd += f.Type().NumIn()
+					in := args[argBeg : argEnd+1]
+					argBeg += argEnd
 
 					f.Call(in)
 				}
