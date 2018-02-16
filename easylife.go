@@ -13,6 +13,11 @@ func OnStart(funcs ...interface{}) Option {
 
 	// create a list of args from all the args in all the funcs passed
 	var in []reflect.Type
+
+	// lifecycle is first argument
+	in = append(in, lifecycle.Type().In(0))
+
+	// args from passed funcs are args [1:]
 	for _, fn := range funcs {
 		t := reflect.TypeOf(fn)
 		for i := 0; i < t.NumIn(); i++ {
@@ -21,24 +26,27 @@ func OnStart(funcs ...interface{}) Option {
 	}
 
 	// create the func to be invoked by combining lifecycle and all args
-	invoke := lifecycle
+	//invoke := lifecycle
+	var out []reflect.Type
+	invoke := reflect.FuncOf(in, out, false)
 
 	// create a new func using combined, then call functionality during lifecycle start
-	f := reflect.MakeFunc(invoke.Type(), func(args []reflect.Value) []reflect.Value {
+	f := reflect.MakeFunc(invoke, func(args []reflect.Value) []reflect.Value {
 
 		// extract lifecycle from arg 0
 		lifecycle := args[0].Interface().(Lifecycle)
+
+		// call all passed funcs on lifecycle start
 		lifecycle.Append(Hook{
 			OnStart: func(ctx context.Context) error {
-
-				// TODO for each fn of funcs, call w/ the correct args
-				fmt.Println("HOLLLLLLLLLLLLLLERRRRRRRRRRRRRRRR")
+				fmt.Println("CALLING FUNCS AT START")
+				for _, fn := range funcs {
+					fmt.Println("func:", fn)
+				}
 				return nil
 			},
 		})
-		invoke.Call(args)
 
-		// TODO need to return anything at all?
 		var ret []reflect.Value
 		return ret
 	})
