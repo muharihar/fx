@@ -26,7 +26,6 @@ func OnStart(funcs ...interface{}) Option {
 	}
 
 	// create the func to be invoked by combining lifecycle and all args
-	//invoke := lifecycle
 	var out []reflect.Type
 	combined := reflect.FuncOf(in, out, false)
 
