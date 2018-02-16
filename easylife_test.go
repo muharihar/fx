@@ -12,12 +12,22 @@ func TestOnStart(t *testing.T) {
 	type A struct {
 		Name string
 	}
+	type B struct {
+		Name string
+	}
 
 	app := New(
 		Provide(func() A { return A{Name: "Grayson"} }),
-		OnStart(func(a A) {
-			fmt.Println("I got an", a)
-		}),
+		Provide(func() B { return B{Name: "Abhinav"} }),
+
+		OnStart(
+			func(a A, b B) {
+				fmt.Println("I got an", a, b)
+			},
+			//func(b B, a A) {
+			//fmt.Println("I got a", b, a)
+			//},
+		),
 	)
 
 	require.NoError(t, app.Err())

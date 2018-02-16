@@ -2,7 +2,6 @@ package fx
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 )
 
@@ -38,12 +37,13 @@ func OnStart(funcs ...interface{}) Option {
 			OnStart: func(ctx context.Context) error {
 
 				// call all funcs with their args
-				fmt.Println("CALLING FUNCS AT START")
+				argPos := 1
 				for _, fn := range funcs {
 					f := reflect.ValueOf(fn)
 
-					// TODO use the right range given the func
-					in := args[1:2]
+					numIn := f.Type().NumIn()
+					in := args[argPos : numIn+1]
+					argPos += numIn
 
 					f.Call(in)
 				}
