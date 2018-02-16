@@ -12,15 +12,13 @@ func OnStart(funcs ...interface{}) Option {
 	lifecycle := reflect.ValueOf(func(lifecycle Lifecycle) {})
 
 	// create a list of args from all the args in all the funcs passed
-	//var in []reflect.Type
-	//for _, fn := range funcs {
-	//t := reflect.TypeOf(fn)
-	//pos := 0
-	//for pos <= t.Len() {
-	//in = append(in, t.In(pos))
-	//pos++
-	//}
-	//}
+	var in []reflect.Type
+	for _, fn := range funcs {
+		t := reflect.TypeOf(fn)
+		for i := 0; i < t.NumIn(); i++ {
+			in = append(in, t.In(i))
+		}
+	}
 
 	// create the func to be invoked by combining lifecycle and all args
 	invoke := lifecycle
