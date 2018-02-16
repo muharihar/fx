@@ -2,61 +2,45 @@ package fx
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestOnStart(t *testing.T) {
-	type A struct {
-		Name string
-	}
-	type B struct {
-		Name string
-	}
-
 	app := New(
-		Provide(func() A { return A{Name: "Grayson"} }),
-		Provide(func() B { return B{Name: "Abhinav"} }),
-
+		Provide(newA, newB),
 		OnStart(
-			func(a A, b B) {
-				fmt.Println("I got an", a, b)
+			func(a a, b b) {
+				assert.True(t, a.Started)
+				assert.True(t, b.Started)
 			},
-			func(b B, a A) {
-				fmt.Println("I got a", b, a)
+			func(b b, a a) {
+				assert.True(t, a.Started)
+				assert.True(t, b.Started)
 			},
 		),
 	)
-
 	require.NoError(t, app.Err())
 	err := app.Start(context.Background())
 	require.NoError(t, err)
 }
 
 func TestOnStop(t *testing.T) {
-	type A struct {
-		Name string
-	}
-	type B struct {
-		Name string
-	}
-
 	app := New(
-		Provide(func() A { return A{Name: "Grayson"} }),
-		Provide(func() B { return B{Name: "Abhinav"} }),
-
+		Provide(newA, newB),
 		OnStop(
-			func(a A, b B) {
-				fmt.Println("I got an", a, b)
+			func(a a, b b) {
+				assert.True(t, a.Started)
+				assert.True(t, b.Started)
 			},
-			func(b B, a A) {
-				fmt.Println("I got a", b, a)
+			func(b b, a a) {
+				assert.True(t, a.Started)
+				assert.True(t, b.Started)
 			},
 		),
 	)
-
 	require.NoError(t, app.Err())
 
 	err := app.Start(context.Background())
@@ -64,4 +48,34 @@ func TestOnStop(t *testing.T) {
 
 	err = app.Stop(context.Background())
 	require.NoError(t, err)
+}
+
+type a struct {
+	Started bool
+}
+
+func newA(lifecycle Lifecycle) a {
+	a := a{}
+	lifecycle.Append(Hook{
+		OnStart: func(ctx context.Context) error {
+			a.Started = true
+			return nil
+		},
+	})
+	return a
+}
+
+type b struct {
+	Started bool
+}
+
+func newB(lifecycle Lifecycle) b {
+	b := b{}
+	lifecycle.Append(Hook{
+		OnStart: func(ctx context.Context) error {
+			b.Started = true
+			return nil
+		},
+	})
+	return b
 }
