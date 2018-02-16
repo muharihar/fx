@@ -7,26 +7,7 @@ import (
 
 // OnStart makes it easy to execute funcs w/ already started types
 func OnStart(funcs ...interface{}) Option {
-	// build args to pass to invoke func
-	var in []reflect.Type
-
-	// append lifecycle as the first args to the invoke func
-	lifecycle := reflect.TypeOf(func(lifecycle Lifecycle) {}).In(0)
-	in = append(in, lifecycle)
-
-	// append args [1:] using the args of all funcs passed
-	for _, fn := range funcs {
-		t := reflect.TypeOf(fn)
-		for i := 0; i < t.NumIn(); i++ {
-			in = append(in, t.In(i))
-		}
-	}
-
-	// create a func type using all "in" args
-	var out []reflect.Type
-	invokeType := reflect.FuncOf(in, out, false)
-
-	// invoke func implementation
+	invokeType := createInvokeType(funcs...)
 	invoke := reflect.MakeFunc(invokeType, func(args []reflect.Value) []reflect.Value {
 
 		// extract lifecycle from arg 0
@@ -64,4 +45,25 @@ func OnStart(funcs ...interface{}) Option {
 	return invokeOption(invokes)
 }
 
-// go test -run TestOnStart . -v
+func createInvokeType(funcs ...interface{}) reflect.Type {
+	// build args to pass to invoke func
+	var in []reflect.Type
+
+	// append lifecycle as the first args to the invoke func
+	lifecycle := reflect.TypeOf(func(lifecycle Lifecycle) {}).In(0)
+	in = append(in, lifecycle)
+
+	// append args [1:] using the args of all funcs passed
+	for _, fn := range funcs {
+		t := reflect.TypeOf(fn)
+		for i := 0; i < t.NumIn(); i++ {
+			in = append(in, t.In(i))
+		}
+	}
+
+	// create a func type using all "in" args
+	var out []reflect.Type
+	invokeType := reflect.FuncOf(in, out, false)
+
+	return invokeType
+}
