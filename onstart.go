@@ -19,11 +19,7 @@ func OnStart(funcs ...interface{}) Option {
 
 		return []reflect.Value{}
 	})
-
-	var invokes []interface{}
-	invokes = append(invokes, invoke.Interface())
-
-	return invokeOption(invokes)
+	return invokeOption([]interface{}{invoke.Interface()})
 }
 
 // OnStop makes it easy to hook into process shutdown
@@ -40,11 +36,7 @@ func OnStop(funcs ...interface{}) Option {
 
 		return []reflect.Value{}
 	})
-
-	var invokes []interface{}
-	invokes = append(invokes, invoke.Interface())
-
-	return invokeOption(invokes)
+	return invokeOption([]interface{}{invoke.Interface()})
 }
 
 func createInvokeType(funcs ...interface{}) reflect.Type {
