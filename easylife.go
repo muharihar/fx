@@ -28,10 +28,10 @@ func OnStart(funcs ...interface{}) Option {
 	// create the func to be invoked by combining lifecycle and all args
 	//invoke := lifecycle
 	var out []reflect.Type
-	invoke := reflect.FuncOf(in, out, false)
+	combined := reflect.FuncOf(in, out, false)
 
 	// create a new func using combined, then call functionality during lifecycle start
-	f := reflect.MakeFunc(invoke, func(args []reflect.Value) []reflect.Value {
+	invoke := reflect.MakeFunc(combined, func(args []reflect.Value) []reflect.Value {
 
 		// extract lifecycle from arg 0
 		lifecycle := args[0].Interface().(Lifecycle)
@@ -51,9 +51,11 @@ func OnStart(funcs ...interface{}) Option {
 		return ret
 	})
 
-	// replace funcs passed in w/ our lifecycle'd func
-	var altered []interface{}
-	altered = append(altered, f.Interface())
+	// pass our 1 onstart invoke to invokeOption
+	var invokes []interface{}
+	invokes = append(invokes, invoke.Interface())
 
-	return invokeOption(altered)
+	return invokeOption(invokes)
 }
+
+// go test -run TestOnStart . -v
