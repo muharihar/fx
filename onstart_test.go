@@ -26,13 +26,9 @@ func TestOnStartOnStop(t *testing.T) {
 		),
 		OnStop(
 			func(a *a, b *b) {
-				assert.True(t, a.Started)
-				assert.True(t, b.Started)
 				called++
 			},
 			func(b *b, a *a) {
-				assert.True(t, a.Started)
-				assert.True(t, b.Started)
 				called++
 			},
 		),
