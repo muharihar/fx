@@ -9,27 +9,13 @@ import (
 func OnStart(funcs ...interface{}) Option {
 	invokeType := createInvokeType(funcs...)
 	invoke := reflect.MakeFunc(invokeType, func(args []reflect.Value) []reflect.Value {
-
 		// extract lifecycle from arg 0
 		lifecycle := args[0].Interface().(Lifecycle)
 
-		// on lifecycle start
+		// then call each invoke func
 		lifecycle.Append(Hook{
 			OnStart: func(ctx context.Context) error {
-
-				// call all funcs with their args
-				argBeg := 1
-				argEnd := 0
-				for _, fn := range funcs {
-					f := reflect.ValueOf(fn)
-
-					// gather args and shift argBeg and argEnd
-					argEnd += f.Type().NumIn()
-					in := args[argBeg : argEnd+1]
-					argBeg += argEnd
-
-					f.Call(in)
-				}
+				callInvokeFuncs(args, funcs...)
 				return nil
 			},
 		})
@@ -61,4 +47,20 @@ func createInvokeType(funcs ...interface{}) reflect.Type {
 	}
 
 	return reflect.FuncOf(in, out, false)
+}
+
+func callInvokeFuncs(args []reflect.Value, funcs ...interface{}) {
+	argFrom := 1
+	argTo := 0
+
+	for _, fn := range funcs {
+		f := reflect.ValueOf(fn)
+
+		// gather args and shift arg markers
+		argTo += f.Type().NumIn()
+		in := args[argFrom : argTo+1]
+		argFrom += argTo
+
+		f.Call(in)
+	}
 }
