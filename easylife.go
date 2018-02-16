@@ -34,8 +34,7 @@ func OnStart(funcs ...interface{}) Option {
 			},
 		})
 
-		var ret []reflect.Value
-		return ret
+		return []reflect.Value{}
 	})
 
 	// pass our 1 onstart invoke to invokeOption
