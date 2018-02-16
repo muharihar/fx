@@ -16,7 +16,6 @@ func OnStart(funcs ...interface{}) Option {
 				return nil
 			},
 		})
-
 		return []reflect.Value{}
 	})
 	return invokeOption([]interface{}{invoke.Interface()})
@@ -33,7 +32,6 @@ func OnStop(funcs ...interface{}) Option {
 				return nil
 			},
 		})
-
 		return []reflect.Value{}
 	})
 	return invokeOption([]interface{}{invoke.Interface()})
@@ -44,7 +42,7 @@ func createInvokeType(funcs ...interface{}) reflect.Type {
 	var out []reflect.Type
 
 	// append lifecycle as the first args to the invoke func
-	lifecycle := reflect.TypeOf(func(lifecycle Lifecycle) {}).In(0)
+	lifecycle := reflect.TypeOf((*Lifecycle)(nil)).Elem()
 	in = append(in, lifecycle)
 
 	// append args [1:] using the args of all funcs passed
