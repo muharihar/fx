@@ -70,7 +70,7 @@ func TestNewApp(t *testing.T) {
 	t.Run("CircularGraphReturnsError", func(t *testing.T) {
 		type A struct{}
 		type B struct{}
-		app := fxtest.New(t,
+		app := New(
 			Provide(func(A) B { return B{} }),
 			Provide(func(B) A { return A{} }),
 		)
@@ -89,7 +89,7 @@ func TestInvokes(t *testing.T) {
 		type A struct{}
 		type B struct{}
 
-		app := fxtest.New(t,
+		app := New(
 			Provide(func() B { return B{} }), // B inserted into the graph
 			Invoke(func(A) {}),               // failed A invoke
 			Invoke(func(B) {}),               // successful B invoke
@@ -104,7 +104,7 @@ func TestError(t *testing.T) {
 	t.Run("NilErrorOption", func(t *testing.T) {
 		var invoked bool
 
-		app := fxtest.New(t,
+		app := New(
 			Error(nil),
 			Invoke(func() { invoked = true }),
 		)
@@ -114,7 +114,7 @@ func TestError(t *testing.T) {
 	})
 
 	t.Run("SingleErrorOption", func(t *testing.T) {
-		app := fxtest.New(t,
+		app := New(
 			Error(errors.New("module failure")),
 			Invoke(func() { t.Errorf("Invoke should not be called") }),
 		)
@@ -125,7 +125,7 @@ func TestError(t *testing.T) {
 	t.Run("MultipleErrorOption", func(t *testing.T) {
 		type A struct{}
 
-		app := fxtest.New(t,
+		app := New(
 			Provide(func() A {
 				t.Errorf("Provide should not be called")
 				return A{}
@@ -148,7 +148,7 @@ func TestError(t *testing.T) {
 		type A struct{}
 		type B struct{}
 
-		app := fxtest.New(t,
+		app := New(
 			Provide(func(b B) A {
 				t.Errorf("B is missing from the container; Provide should not be called")
 				return A{}
@@ -230,7 +230,7 @@ func TestOptions(t *testing.T) {
 
 	t.Run("Error", func(t *testing.T) {
 		spy := printerSpy{&bytes.Buffer{}}
-		fxtest.New(t,
+		New(
 			Provide(&bytes.Buffer{}), // error, not a constructor
 			Logger(spy),
 		)
@@ -334,7 +334,7 @@ func TestAppStart(t *testing.T) {
 			})
 			return struct{}{}
 		}
-		app := fxtest.New(t,
+		app := New(
 			Provide(fail),
 			Invoke(func(struct{}) {}),
 		)
@@ -344,8 +344,8 @@ func TestAppStart(t *testing.T) {
 	})
 
 	t.Run("InvokeNonFunction", func(t *testing.T) {
-		app := fxtest.New(t, Invoke(struct{}{}))
-		err := app.Start(context.Background())
+		app := New(Invoke(struct{}{}))
+		err := app.Err()
 		require.Error(t, err, "expected start failure")
 		assert.Contains(t, err.Error(), "can't invoke non-function")
 	})
@@ -355,7 +355,7 @@ func TestAppStart(t *testing.T) {
 		type type2 struct{}
 		type type3 struct{}
 
-		app := fxtest.New(t,
+		app := New(
 			Provide(
 				func() type1 { return type1{} },
 				Provide(
@@ -365,7 +365,7 @@ func TestAppStart(t *testing.T) {
 			),
 		)
 
-		err := app.Start(context.Background())
+		err := app.Err()
 		require.Error(t, err, "expected start failure")
 		assert.Contains(t, err.Error(), "fx.Option should be passed to fx.New directly, not to fx.Provide")
 		assert.Contains(t, err.Error(), "fx.Provide received fx.Provide(go.uber.org/fx_test.TestAppStart")
@@ -374,7 +374,7 @@ func TestAppStart(t *testing.T) {
 	t.Run("InvokingAnInvokeShouldFail", func(t *testing.T) {
 		type type1 struct{}
 
-		app := fxtest.New(t,
+		app := New(
 			Provide(func() type1 { return type1{} }),
 			Invoke(Invoke(func(type1) {
 			})),
@@ -405,13 +405,13 @@ func TestAppStart(t *testing.T) {
 			}),
 		)
 
-		app := fxtest.New(t,
+		app := New(
 			Provide(
 				func() type3 { return type3{} },
 				module,
 			),
 		)
-		err := app.Start(context.Background())
+		err := app.Err()
 		require.Error(t, err, "expected start failure")
 		assert.Contains(t, err.Error(), "fx.Option should be passed to fx.New directly, not to fx.Provide")
 		assert.Contains(t, err.Error(), "fx.Provide received fx.Options(fx.Provide(go.uber.org/fx_test.TestAppStart")
